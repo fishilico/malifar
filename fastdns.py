@@ -167,6 +167,10 @@ async def scanner_coroutine(ip, manager):
         except dns.exception.Timeout as e:
             logging.error(f"Timeout connecting to {ip} ms: {e}")
             await asyncio.sleep(10)
+        except OSError as e:
+            logging.error(f"error connecting to {ip}: {e}")
+            await asyncio.sleep(10)
+
 
 def dns_query(fqdn, dtype_s, resolver="8.8.8.8"):
     """Make a recursive call to list authoritative servers (NS)
