@@ -325,28 +325,28 @@ class HashFinder():
             i = 0
             copied = False
             while i < nholes:
-                if self.solutions[i] == -1:
+                if self.solutions[i][0] == -1:
                     i+=1
                 else:
-                    #print("solve ", i, self.solutions[i])
+                    #print("solve ", i, self.solutions[i][0])
                     if not copied:
                         cl.enqueue_copy(self.clhash.queue, self.clhash.in_data, self.clhash.in_data_cl).wait()
                         copied=True
-                    sol = int(self.solutions[i])
+                    sol = int(self.solutions[i][0])
                     #print((hex(self.holes[i][0]), hex(self.holes[i][1]), self.clhash.get_data(self.data_max_len, sol), self.clhash.get_hash(sol).hex()))
                     fqdn = antihash(self.clhash.get_data(self.data_max_len, sol))
                     if bl and fqdn in bl:
                         # fqdn is blocked, don't append it
                         print(f"Skip blocked fqdn {fqdn}")
                         # mark it as bad in cl memory so we don't hit on it on next iteration
-                        self.solutions[i] = -1
+                        self.solutions[i][0] = -1
                         cl.enqueue_copy(self.clhash.queue, self.solutions_cl, self.solutions)
                         i += 1
                         continue
                     solved.append([self.holes[i][0], self.holes[i][1], fqdn])
                     nholes -= 1
                     self.holes[i] = self.holes[nholes]
-                    self.solutions[i] = self.solutions[nholes]
+                    self.solutions[i][0] = self.solutions[nholes][0]
                     self.holes[nholes] = [0, 0]
             avg, maxi = self.avg_holes_complexity(nholes)
             hashrate=calc_hashrate(start, self.nthreads)
