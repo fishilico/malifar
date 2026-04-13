@@ -288,8 +288,9 @@ class DumpManager():
             for i in ns:
                 A = dns_query(i, "A")
                 ns_ips += A
-                AAAA = dns_query(i, "AAAA")
-                ns_ips += AAAA
+                if not self.args.ipv4:
+                    AAAA = dns_query(i, "AAAA")
+                    ns_ips += AAAA
             self.config.nameservers = ns_ips
         if self.config.nsec3params:
             self.nsec3params = NSEC3Params.from_serial(self.config.nsec3params)
@@ -636,6 +637,7 @@ def main():
     parser.add_argument('-v', '--verbose', action='count')
     parser.add_argument('-c', '--restore', action='store_true')
     parser.add_argument('-m', '--max-complexity', action='store')
+    parser.add_argument('-4', '--ipv4', action='store_true', help="use only IPv4 nameservers")
     parser.add_argument('tld')
     args=parser.parse_args()
     verbose = defaultdict(lambda : logging.DEBUG, {None:logging.WARNING, 1:logging.INFO, 2:logging.DEBUG})
